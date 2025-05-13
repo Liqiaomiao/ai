@@ -1,0 +1,386 @@
+/* MasterGoPage.css - 招牌菜页面样式 */
+
+/* 主容器样式 */
+.mastergo-container {
+  background: #F4F4F4;
+  min-height: 100vh;
+  font-family: PingFangSC, sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* 顶部区域样式 */
+.header-container {
+  position: relative;
+  width: 375px;
+  height: 168px;
+  margin: 0 auto;
+  border-radius: 0 0 20px 20px;
+  overflow: hidden;
+}
+
+.header-image-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.header-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header-gradient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) -9%, #140D04 79%);
+  z-index: 1;
+}
+
+/* 返回按钮 */
+.back-button {
+  position: absolute;
+  left: 12px;
+  top: 56px;
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  padding: 0;
+}
+
+/* 标题样式 */
+.title-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  height: 37px;
+}
+
+.title-container .title-text {
+  font-size: 32px;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  background: linear-gradient(188deg, #FFFFFF 1%, #F9DFB9 109%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 12px;
+  text-align: center;
+}
+
+.wheat-decoration {
+  width: 27px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 筛选标签区域 */
+.filter-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.filter-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #A6A5A3;
+  cursor: pointer;
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.filter-tag.active {
+  color: #333333;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.filter-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* 钻石图标 */
+.filter-icon.diamond:after {
+  content: '';
+  width: 9px;
+  height: 8px;
+  position: absolute;
+  background-image: url("data:image/svg+xml,%3Csvg width='9' height='8' viewBox='0 0 9 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.35 0L3.42698 0L2.475 2.37838L0 2.37838L1.35 0ZM6.075 2.37838L5.12325 0L3.87698 0L2.925 2.37838L6.075 2.37838ZM9 2.37838L7.65 0L5.57325 0L6.525 2.37838L9 2.37838ZM3.80767 7.20173L0 2.81081L2.475 2.81081L3.80767 7.20173ZM4.5 8L2.925 2.81081L6.075 2.81081L4.5 8ZM9 2.81081L5.19233 7.20173L6.525 2.81081L9 2.81081Z' fill='%23A6A5A3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* 点赞图标 */
+.filter-icon.thumbs-up:after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  position: absolute;
+  background-image: url("data:image/svg+xml,%3Csvg width='7' height='7' viewBox='0 0 7 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.89105 2.71814L6.37381 2.71814C6.77611 2.71814 7 2.86157 7 3.2009C7 3.54023 6.49275 6.38781 6.21289 6.74813C6.11844 6.87056 5.98201 7 5.83158 7L2.31234 7C2.15492 7 2.02549 6.87056 2.02549 6.71314L2.02549 3.005C2.02549 2.84758 2.15492 2.71814 2.31234 2.71814C2.31234 2.71814 3.48076 2.37181 3.72564 1.50075C3.97051 0.629685 3.86907 0 4.75762 0C5.64618 0 6.05547 1.68616 5.27186 2.71814L5.89105 2.71814ZM0.349825 6.9965L1.35032 6.9965C1.54273 6.9965 1.70015 6.83908 1.70015 6.64668L1.70015 3.06797C1.70015 2.87556 1.54273 2.71814 1.35032 2.71814L0.349825 2.71814C0.157421 2.71814 0 2.87556 0 3.06797L0 6.64668C0 6.83908 0.157421 6.9965 0.349825 6.9965Z' fill='%23A6A5A3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.filter-tag.active .filter-icon.diamond:after,
+.filter-tag.active .filter-icon.thumbs-up:after {
+  filter: brightness(0.7);
+}
+
+/* 菜品列表区域 */
+.dishes-container {
+  width: 375px;
+  margin: 0 auto;
+  padding: 8px 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 菜品卡片 */
+.dish-card {
+  background: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 0 10px 0 rgba(0,0,0,0.08);
+  display: flex;
+  padding: 16px;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dish-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.dish-image-container {
+  width: 105px;
+  height: 105px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #FFEEEE;
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+.dish-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.dish-card:hover .dish-image {
+  transform: scale(1.05);
+}
+
+.dish-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dish-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333333;
+  margin-bottom: 4px;
+}
+
+.dish-desc {
+  font-size: 14px;
+  color: #666666;
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+.dish-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.dish-price {
+  font-size: 15px;
+  color: #111111;
+  font-weight: 600;
+  margin-right: 12px;
+}
+
+.dish-tag {
+  background: #F6F6F6;
+  color: #111111;
+  border-radius: 2px;
+  padding: 2px 8px;
+  font-size: 12px;
+  display: inline-block;
+}
+
+.dish-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  width: 100%;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 121, 70, 0.2);
+  border-top-color: #FF7946;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 交互按钮 */
+.action-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+}
+
+.action-icon:hover {
+  background-color: rgba(255, 121, 70, 0.1);
+}
+
+.action-icon.liked {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* 排行标签 */
+.rank-label {
+  position: absolute;
+  left: 8px;
+  top: -10px;
+  width: 34px;
+  height: 41px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 6px;
+  z-index: 2;
+  border-radius: 4px 4px 0 0;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 50% 100%, 0% 70%);
+}
+
+.rank-number {
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.top-tag {
+  position: absolute;
+  top: 20px;
+  font-size: 9px;
+  color: white;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.wheat-left,
+.wheat-right {
+  position: absolute;
+  width: 6px;
+  height: 10px;
+  top: 12px;
+}
+
+.wheat-left {
+  left: 7px;
+  transform: scaleX(-1) rotate(-15deg);
+  background-image: url("data:image/svg+xml,%3Csvg width='6' height='10' viewBox='0 0 6 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.38176 0.00242386C4.4798 -0.00882191 4.57784 0.0192925 4.65948 0.0820094C4.73692 0.144294 4.78613 0.233395 4.79681 0.332012L4.8094 0.472584C4.84268 0.927027 4.78072 1.38395 4.62857 1.80607C4.39587 2.45271 4.04643 2.96612 3.58179 3.34328C3.50203 3.06338 3.44545 2.77566 3.41279 2.48385C3.38189 2.14085 3.38189 1.83073 3.58179 1.04785C3.67067 0.699229 3.8637 0.38478 4.15935 0.103636C4.22276 0.0451938 4.3003 0.00990645 4.38176 0.00242386ZM5.74365 2.35625C6.04655 2.35625 6.02671 2.67416 5.94507 2.94622C5.8642 3.21872 5.51705 4.02928 4.91736 4.52193C4.51756 4.84979 4.01095 5.13526 3.39829 5.37617C3.53486 4.49381 3.82784 3.8009 4.27723 3.29571C4.95055 2.53748 5.43999 2.35625 5.74365 2.35625ZM5.99734 5.31086C5.95766 5.5959 5.69635 6.32385 4.94215 6.87749C4.32925 7.32461 3.64806 7.63795 2.93365 7.80137C2.8641 7.81808 2.79503 7.83555 2.72785 7.85255C2.2732 7.96758 1.90442 8.06089 2.05166 7.74774C2.22104 7.38874 2.79326 6.49643 3.62032 5.86969C4.44623 5.24252 4.88302 5.16943 5.25077 5.08162C5.61814 4.99382 6.03739 5.02496 5.99734 5.31086ZM3.92436 8.24428C4.50688 8.2858 4.77583 8.62318 4.69228 8.86799C4.60759 9.11323 4.01401 9.72959 3.01605 9.89308C2.21041 10.0262 1.411 10.003 0.935047 9.98911C0.821877 9.98581 0.726996 9.98305 0.654666 9.98305C0.277761 9.98305 -0.166667 9.9225 0.0629859 9.69931C0.597062 9.20623 1.20362 8.8256 1.85519 8.57344C2.72993 8.24471 3.34221 8.20276 3.92436 8.24471L3.92436 8.24428Z' fill='white' fill-opacity='0.9'/%3E%3C/svg%3E");
+  opacity: 0.8;
+}
+
+.wheat-right {
+  right: 7px;
+  transform: rotate(15deg);
+  background-image: url("data:image/svg+xml,%3Csvg width='6' height='10' viewBox='0 0 6 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.38176 0.00242386C4.4798 -0.00882191 4.57784 0.0192925 4.65948 0.0820094C4.73692 0.144294 4.78613 0.233395 4.79681 0.332012L4.8094 0.472584C4.84268 0.927027 4.78072 1.38395 4.62857 1.80607C4.39587 2.45271 4.04643 2.96612 3.58179 3.34328C3.50203 3.06338 3.44545 2.77566 3.41279 2.48385C3.38189 2.14085 3.38189 1.83073 3.58179 1.04785C3.67067 0.699229 3.8637 0.38478 4.15935 0.103636C4.22276 0.0451938 4.3003 0.00990645 4.38176 0.00242386ZM5.74365 2.35625C6.04655 2.35625 6.02671 2.67416 5.94507 2.94622C5.8642 3.21872 5.51705 4.02928 4.91736 4.52193C4.51756 4.84979 4.01095 5.13526 3.39829 5.37617C3.53486 4.49381 3.82784 3.8009 4.27723 3.29571C4.95055 2.53748 5.43999 2.35625 5.74365 2.35625ZM5.99734 5.31086C5.95766 5.5959 5.69635 6.32385 4.94215 6.87749C4.32925 7.32461 3.64806 7.63795 2.93365 7.80137C2.8641 7.81808 2.79503 7.83555 2.72785 7.85255C2.2732 7.96758 1.90442 8.06089 2.05166 7.74774C2.22104 7.38874 2.79326 6.49643 3.62032 5.86969C4.44623 5.24252 4.88302 5.16943 5.25077 5.08162C5.61814 4.99382 6.03739 5.02496 5.99734 5.31086ZM3.92436 8.24428C4.50688 8.2858 4.77583 8.62318 4.69228 8.86799C4.60759 9.11323 4.01401 9.72959 3.01605 9.89308C2.21041 10.0262 1.411 10.003 0.935047 9.98911C0.821877 9.98581 0.726996 9.98305 0.654666 9.98305C0.277761 9.98305 -0.166667 9.9225 0.0629859 9.69931C0.597062 9.20623 1.20362 8.8256 1.85519 8.57344C2.72993 8.24471 3.34221 8.20276 3.92436 8.24471L3.92436 8.24428Z' fill='white' fill-opacity='0.9'/%3E%3C/svg%3E");
+  opacity: 0.8;
+}
+
+/* 响应式设计 */
+@media (max-width: 375px) {
+  .header-container,
+  .dishes-container {
+    width: 100%;
+  }
+  
+  .dish-card {
+    margin: 0 8px 16px;
+  }
+}
+
+/* 动画效果 */
+.dish-card {
+  transform-origin: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dish-card:active {
+  transform: scale(0.98);
+}
