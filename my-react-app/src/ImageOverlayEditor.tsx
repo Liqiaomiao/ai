@@ -31,6 +31,10 @@ const ImageOverlayEditor: React.FC = () => {
       bottomRight: { x: number, y: number }
     }
   }>({});
+  // 添加状态管理缩放和位置
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
 
   const stageRef = useRef<any>(null);
   const transformerRef = useRef<any>(null);
@@ -77,11 +81,13 @@ const ImageOverlayEditor: React.FC = () => {
     const node = groupRefs.current[id];
     if (!node) return;
     const box = node.getClientRect();
-    const absPos = node.absolutePosition();
-    const topLeft = { x: absPos.x, y: absPos.y };
-    const topRight = { x: absPos.x + box.width, y: absPos.y };
-    const bottomLeft = { x: absPos.x, y: absPos.y + box.height };
-    const bottomRight = { x: box.x + box.width, y: box.y + box.height };
+    const x = node.x();
+    const y = node.y();
+    const topLeft = { x: x, y:y };
+    const topRight = { x: x+ box.width, y: y };
+    const bottomLeft = { x: x, y: y + box.height };
+    const bottomRight = { x:x+ box.width, y: y+ box.height };
+  
     setCoordinates(prev => ({
       ...prev,
       [id]: { topLeft, topRight, bottomLeft, bottomRight }
@@ -107,7 +113,7 @@ const ImageOverlayEditor: React.FC = () => {
     node.x(newX);
     node.y(newY);
   };
-  const [isDragging, setIsDragging] = useState(false);
+  
   // 拖拽开始
   const handleDragStart = () => {
     setIsDragging(true);
@@ -186,6 +192,48 @@ const ImageOverlayEditor: React.FC = () => {
     setTimeout(() => updateCoordinates(id), 0);
   };
 
+  // 底图拖动处理
+  const handleStageWheel = (e) => {
+    e.evt.preventDefault();
+    
+    // 计算新的缩放值
+    const scaleBy = 1.1;
+    const oldScale = scale;
+    let newScale = e.evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    
+    // 限制缩放范围
+    newScale = Math.max(0.5, Math.min(5, newScale));
+    setScale(newScale);
+  };
+
+  // 底图拖拽处理
+  const handleStageDragStart = () => {
+    setIsDragging(true);
+  };
+
+  const handleStageDragEnd = (e) => {
+    setIsDragging(false);
+    setPosition({ x: e.target.x(), y: e.target.y() });
+    setTimeout(() => {
+      for (const id in groupRefs.current) {
+        if (groupRefs.current[id]) {
+          updateCoordinates(id);
+        }
+      }
+    }, 0);
+  };
+
+  // 保存处理 - 恢复原始尺寸，但保持覆盖图相对位置
+  const handleSave = () => {
+    if (!baseImage) return;
+    
+    // 重置缩放和位置
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+
+    alert('保存成功！覆盖图位置已根据原始底图尺寸进行调整。');
+  };
+
   return (
     <div className="image-overlay-editor" style={{ display: 'flex', gap: 24, position: 'relative' }}>
       {/* 删除icon，绝对定位在右上角 */}
@@ -228,53 +276,68 @@ const ImageOverlayEditor: React.FC = () => {
       )}
       {/* 左侧底图+多个覆盖层 */}
       <div>
-        {baseImage && (
-          <Stage
-            width={baseImage.width}
-            height={baseImage.height}
-            ref={stageRef}
-            style={{ border: '1px solid #ccc', background: '#eee' }}
-           
-          >
-            <Layer>
-              <Image image={baseImage} onClick={()=>{
-                setSelectedId(null);
-              }} />
-              {overlays.map(item => (
-                // 在Group组件上加onDragStart
-                <Group
-                  key={item.id}
-                  id={item.id}
-                  ref={node => (groupRefs.current[item.id] = node)}
-                  x={item.x}
-                  y={item.y}
-                  scaleX={item.scale}
-                  scaleY={item.scale}
-                  draggable
-                  onClick={e => {
-                    e.cancelBubble = true;
-            
-                    setSelectedId(item.id);
-                  }}
-                  onTap={e => {
-                    e.cancelBubble = true;
-                  
-                    setSelectedId(item.id);
-                  }}
-                  onDragStart={handleDragStart}
-                  onDragMove={e => handleDragMove(item.id, e)}
-                  onDragEnd={e => handleDragEnd(item.id, e)}
-                  onTransformEnd={e => handleTransformEnd(item.id, e)}
-                >
-                  <Image
-                    image={item.image}
-                    width={item.width}
-                    height={item.height}
-                  />
-                </Group>
-              ))}
-              {selectedId && overlays.length > 0 && (
-                <>
+        <div 
+          style={{ 
+            width: 800, 
+            height: 533, 
+            border: '2px solid #333', 
+            overflow: 'hidden',
+            position: 'relative'
+          }}
+        >
+          {baseImage && (
+            <Stage
+              width={800}
+              height={533}
+              ref={stageRef}
+              draggable
+              onWheel={handleStageWheel}
+              onDragStart={handleStageDragStart}
+              onDragEnd={handleStageDragEnd}
+              style={{ background: '#eee' }}
+              x={position.x}
+              y={position.y}
+              scaleX={scale}
+              scaleY={scale}
+            >
+              <Layer>
+                <Image 
+                  image={baseImage} 
+                  onClick={() => {
+                    setSelectedId(null);
+                  }} 
+                />
+                {overlays.map(item => (
+                  <Group
+                    key={item.id}
+                    id={item.id}
+                    ref={node => (groupRefs.current[item.id] = node)}
+                    x={item.x}
+                    y={item.y}
+                    scaleX={item.scale}
+                    scaleY={item.scale}
+                    draggable
+                    onClick={e => {
+                      e.cancelBubble = true;
+                      setSelectedId(item.id);
+                    }}
+                    onTap={e => {
+                      e.cancelBubble = true;
+                      setSelectedId(item.id);
+                    }}
+                    onDragStart={handleDragStart}
+                    onDragMove={e => handleDragMove(item.id, e)}
+                    onDragEnd={e => handleDragEnd(item.id, e)}
+                    onTransformEnd={e => handleTransformEnd(item.id, e)}
+                  >
+                    <Image
+                      image={item.image}
+                      width={item.width}
+                      height={item.height}
+                    />
+                  </Group>
+                ))}
+                {selectedId && overlays.length > 0 && (
                   <Transformer
                     ref={transformerRef}
                     enabledAnchors={[
@@ -289,37 +352,68 @@ const ImageOverlayEditor: React.FC = () => {
                       return newBox;
                     }}
                   />
-                 
-                </>
-              )}
-            </Layer>
-          </Stage>
-        )}
-        {/* 坐标信息 */}
-        {selectedId && coordinates[selectedId]  && (
-          <div className="coordinates-display">
-          <h3>覆盖层坐标信息：</h3>
-          <table>
-            <tbody>
-              <tr>
-                <td>左上角：</td>
-                <td>X: {Math.round(coordinates[selectedId].topLeft.x)}, Y: {Math.round(coordinates[selectedId].topLeft.y)}</td>
-              </tr>
-              <tr>
-                <td>右上角：</td>
-                <td>X: {Math.round(coordinates[selectedId].topRight.x)}, Y: {Math.round(coordinates[selectedId].topRight.y)}</td>
-              </tr>
-              <tr>
-                <td>左下角：</td>
-                <td>X: {Math.round(coordinates[selectedId].bottomLeft.x)}, Y: {Math.round(coordinates[selectedId].bottomLeft.y)}</td>
-              </tr>
-              <tr>
-                <td>右下角：</td>
-                <td>X: {Math.round(coordinates[selectedId].bottomRight.x)}, Y: {Math.round(coordinates[selectedId].bottomRight.y)}</td>
-              </tr>
-            </tbody>
-          </table>
+                )}
+              </Layer>
+            </Stage>
+          )}
+          <div 
+            style={{ 
+              position: 'absolute', 
+              bottom: 10, 
+              right: 10, 
+              zIndex: 10 
+            }}
+          >
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={() => setScale(prev => Math.min(prev * 1.1, 5))}
+                style={{ padding: '5px 10px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                放大
+              </button>
+              <button 
+                onClick={() => setScale(prev => Math.max(prev / 1.1, 0.5))}
+                style={{ padding: '5px 10px', background: '#2196F3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                缩小
+              </button>
+              <button 
+                onClick={handleSave}
+                style={{ padding: '5px 10px', background: '#FF5722', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                保存
+              </button>
+            </div>
+          </div>
         </div>
+        {/* 坐标信息 */}
+        {selectedId && coordinates[selectedId] && (
+          <div className="coordinates-display">
+            <h3>覆盖层相对于底图的坐标信息：</h3>
+            <table>
+              <tbody>
+                <tr>
+                  <td>左上角：</td>
+                  <td>X: {Math.round(coordinates[selectedId].topLeft.x)}, Y: {Math.round(coordinates[selectedId].topLeft.y)}</td>
+                </tr>
+                <tr>
+                  <td>右上角：</td>
+                  <td>X: {Math.round(coordinates[selectedId].topRight.x)}, Y: {Math.round(coordinates[selectedId].topRight.y)}</td>
+                </tr>
+                <tr>
+                  <td>左下角：</td>
+                  <td>X: {Math.round(coordinates[selectedId].bottomLeft.x)}, Y: {Math.round(coordinates[selectedId].bottomLeft.y)}</td>
+                </tr>
+                <tr>
+                  <td>右下角：</td>
+                  <td>X: {Math.round(coordinates[selectedId].bottomRight.x)}, Y: {Math.round(coordinates[selectedId].bottomRight.y)}</td>
+                </tr>
+              </tbody>
+            </table>
+            {scale !== 1 && (
+              <p style={{ color: 'red' }}>注意：当前底图已缩放，但坐标已转换为相对于原始底图的值。</p>
+            )}
+          </div>
         )}
       </div>
       {/* 右侧覆盖图选择区 */}
