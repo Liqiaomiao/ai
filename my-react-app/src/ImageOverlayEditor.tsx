@@ -121,6 +121,7 @@ const ImageOverlayEditor: React.FC = () => {
   // 拖拽结束
   const handleDragEnd = (id: string, e: any) => {
     setIsDragging(false);
+    console.log('overlay drag end');
     const node = e.target;
     setOverlays(overlays.map(item =>
       item.id === id
@@ -213,14 +214,9 @@ const ImageOverlayEditor: React.FC = () => {
 
   const handleStageDragEnd = (e) => {
     setIsDragging(false);
-    setPosition({ x: e.target.x(), y: e.target.y() });
-    setTimeout(() => {
-      for (const id in groupRefs.current) {
-        if (groupRefs.current[id]) {
-          updateCoordinates(id);
-        }
-      }
-    }, 0);
+    console.log('stage drag');
+   /// setPosition({ x: e.target.x(), y: e.target.y() });
+   
   };
 
   // 保存处理 - 恢复原始尺寸，但保持覆盖图相对位置
@@ -229,7 +225,7 @@ const ImageOverlayEditor: React.FC = () => {
     
     // 重置缩放和位置
     setScale(1);
-    setPosition({ x: 0, y: 0 });
+   setPosition({ x: 1, y: 1 });
 
     alert('保存成功！覆盖图位置已根据原始底图尺寸进行调整。');
   };
@@ -325,9 +321,18 @@ const ImageOverlayEditor: React.FC = () => {
                       e.cancelBubble = true;
                       setSelectedId(item.id);
                     }}
-                    onDragStart={handleDragStart}
-                    onDragMove={e => handleDragMove(item.id, e)}
-                    onDragEnd={e => handleDragEnd(item.id, e)}
+                    onDragStart={(e)=>{
+                      e.cancelBubble = true;
+                      handleDragStart()
+                    }}
+                    onDragMove={e => {
+                      e.cancelBubble = true;
+                      handleDragMove(item.id, e)
+                    }}
+                    onDragEnd={e => {
+                      e.cancelBubble = true;
+                      handleDragEnd(item.id, e)
+                    }}
                     onTransformEnd={e => handleTransformEnd(item.id, e)}
                   >
                     <Image
