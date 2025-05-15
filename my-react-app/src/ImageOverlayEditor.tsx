@@ -28,7 +28,8 @@ const ImageOverlayEditor: React.FC = () => {
       topLeft: { x: number, y: number },
       topRight: { x: number, y: number },
       bottomLeft: { x: number, y: number },
-      bottomRight: { x: number, y: number }
+      bottomRight: { x: number, y: number },
+      clearPos: {x: number, y: number}
     }
   }>({});
   // 添加状态管理缩放和位置
@@ -87,10 +88,11 @@ const ImageOverlayEditor: React.FC = () => {
     const topRight = { x: x+ box.width, y: y };
     const bottomLeft = { x: x, y: y + box.height };
     const bottomRight = { x:x+ box.width, y: y+ box.height };
+    const clearPos = { x: box.x+ box.width, y: box.y}
   
     setCoordinates(prev => ({
       ...prev,
-      [id]: { topLeft, topRight, bottomLeft, bottomRight }
+      [id]: { topLeft, topRight, bottomLeft, bottomRight, clearPos }
     }));
   };
   // 拖拽和缩放限制
@@ -98,17 +100,41 @@ const ImageOverlayEditor: React.FC = () => {
     const node = e.target;
     const stage = node.getStage();
     const box = node.getClientRect();
-    const stageWidth = stage.width();
-    const stageHeight = stage.height();
-
+    
     let newX = node.x();
     let newY = node.y();
-
-    // 保证至少有一边在底图内
-    if (box.x < 0) newX = node.x() - box.x;
-    if (box.y < 0) newY = node.y() - box.y;
-    if (box.x + box.width > stageWidth) newX = node.x() - (box.x + box.width - stageWidth);
-    if (box.y + box.height > stageHeight) newY = node.y() - (box.y + box.height - stageHeight);
+    
+    // 获取Stage容器的尺寸
+    const containerWidth = stage.width();
+    const containerHeight = stage.height();
+  
+    // 确保至少有一部分在可视区域内（保留至少50%在可视区域）
+    const minVisibleHorizontal = Math.min(box.width, containerWidth) * 1;
+    const minVisibleVertical = Math.min(box.width, containerHeight) * 1;
+    
+    // 限制右边界
+    if (box.x + minVisibleHorizontal > containerWidth) {
+     
+      newX = node.x() - (box.x + minVisibleHorizontal - containerWidth);
+    }
+    
+    // 限制左边界
+    if (box.x + box.width - minVisibleHorizontal < 0) {
+    
+      newX = node.x() - (box.x + box.width - minVisibleHorizontal);
+    }
+    
+    // 限制下边界
+    if (box.y + minVisibleVertical > containerHeight) {
+   
+      newY = node.y() - (box.y + minVisibleVertical - containerHeight);
+    }
+    
+    // 限制上边界
+    if (box.y + box.height - minVisibleVertical < 0) {
+    
+      newY = node.y() - (box.y + box.height - minVisibleVertical);
+    }
 
     node.x(newX);
     node.y(newY);
@@ -134,6 +160,7 @@ const ImageOverlayEditor: React.FC = () => {
   const handleTransformEnd = (id: string) => {
     const node = groupRefs.current[id];
     const scale = node.scaleX();
+    console.log('overlay transform end', scale);
     setOverlays(overlays.map(item =>
       item.id === id
         ? {
@@ -146,10 +173,8 @@ const ImageOverlayEditor: React.FC = () => {
           }
         : item
     ));
-    node.scaleX(1);
-    node.scaleY(1);
-    
-    setTimeout(() => updateCoordinates(id), 0);
+    updateCoordinates(id)
+  
   };
 
   // 选中时更新变换器
@@ -157,7 +182,11 @@ const ImageOverlayEditor: React.FC = () => {
     if (selectedId && transformerRef.current && groupRefs.current[selectedId]) {
       transformerRef.current.nodes([groupRefs.current[selectedId]]);
       transformerRef.current.getLayer().batchDraw();
-      updateCoordinates(selectedId);
+      
+      // 只有覆盖层才需要更新坐标
+      if (selectedId !== 'baseImage') {
+        updateCoordinates(selectedId);
+      }
     }
   }, [selectedId, overlays.length]);
 
@@ -195,6 +224,7 @@ const ImageOverlayEditor: React.FC = () => {
 
   // 底图拖动处理
   const handleStageWheel = (e) => {
+    setSelectedId(null);
     e.evt.preventDefault();
     
     // 计算新的缩放值
@@ -204,6 +234,7 @@ const ImageOverlayEditor: React.FC = () => {
     
     // 限制缩放范围
     newScale = Math.max(0.5, Math.min(5, newScale));
+    
     setScale(newScale);
   };
 
@@ -215,8 +246,47 @@ const ImageOverlayEditor: React.FC = () => {
   const handleStageDragEnd = (e) => {
     setIsDragging(false);
     console.log('stage drag');
-   /// setPosition({ x: e.target.x(), y: e.target.y() });
+    if(selectedId=='baseImage'){
+      setPosition({ x: e.target.x(), y: e.target.y() });
+    }
    
+  };
+
+  // 底图拖拽过程中限制
+  const handleStageDragMove = (e) => {
+    const node = e.target;
+    const containerWidth = 800;
+    const containerHeight = 533;
+    const imageWidth = baseImage ? baseImage.width * scale : containerWidth;
+    const imageHeight = baseImage ? baseImage.height * scale : containerHeight;
+    
+    let newX = node.x();
+    let newY = node.y();
+    // 防止底图完全移出可视区域，确保用户能找到底图
+    // 允许部分移出，但至少保留一部分在可视区域内
+    const minVisiblePortion = Math.min(containerWidth, imageWidth) * 0.5; 
+    // 确保左边界不会完全移出
+    if (newX > containerWidth - minVisiblePortion) {
+      newX = containerWidth - minVisiblePortion;
+    }
+    
+    // 确保右边界不会完全移出
+    if (newX + imageWidth < minVisiblePortion) {
+      newX = minVisiblePortion - imageWidth;
+    }
+    
+    // 确保上边界不会完全移出
+    if (newY > containerHeight - minVisiblePortion) {
+      newY = containerHeight - minVisiblePortion;
+    }
+    
+    // 确保下边界不会完全移出
+    if (newY + imageHeight < minVisiblePortion) {
+      newY = minVisiblePortion - imageHeight;
+    }
+    
+    node.x(newX);
+    node.y(newY);
   };
 
   // 保存处理 - 恢复原始尺寸，但保持覆盖图相对位置
@@ -225,7 +295,7 @@ const ImageOverlayEditor: React.FC = () => {
     
     // 重置缩放和位置
     setScale(1);
-   setPosition({ x: 1, y: 1 });
+    setPosition({ x: 0, y: 0 });
 
     alert('保存成功！覆盖图位置已根据原始底图尺寸进行调整。');
   };
@@ -237,8 +307,8 @@ const ImageOverlayEditor: React.FC = () => {
         <div
           style={{
             position: 'absolute',
-            left: coordinates[selectedId].topRight.x + 4,
-            top: coordinates[selectedId].topRight.y - 4,
+            left: coordinates[selectedId].clearPos.x   ,
+            top: coordinates[selectedId].clearPos.y ,
             zIndex: 10
           }}
         >
@@ -290,6 +360,7 @@ const ImageOverlayEditor: React.FC = () => {
               onWheel={handleStageWheel}
               onDragStart={handleStageDragStart}
               onDragEnd={handleStageDragEnd}
+              onDragMove={handleStageDragMove}
               style={{ background: '#eee' }}
               x={position.x}
               y={position.y}
@@ -298,8 +369,11 @@ const ImageOverlayEditor: React.FC = () => {
             >
               <Layer>
                 <Image 
-                  image={baseImage} 
+                  image={baseImage}
+                  id="baseImage"
+                  ref={node => (groupRefs.current['baseImage'] = node)}
                   onClick={() => {
+                   
                     setSelectedId(null);
                   }} 
                 />
